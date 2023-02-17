@@ -1,0 +1,61 @@
+// PID controller constants
+double kp = 1.0; // Proportional gain
+double ki = 0.2; // Integral gain
+double kd = 0.1; // Derivative gain
+
+// PID controller variables
+double setpoint = 50.0; // Desired temperature
+double input = 0.0; // Current temperature
+double output = 0.0; // Heater control output
+double error = 0.0; // Current error
+double prev_error = 0.0; // Previous error
+double integral = 0.0; // Integral term
+double derivative = 0.0; // Derivative term
+
+// PID controller update function
+void update_pid() {
+  // Calculate error
+  error = setpoint - input;
+
+  // Calculate integral
+  integral += error;
+
+  // Calculate derivative
+  derivative = error - prev_error;
+
+  // Calculate output
+  output = kp * error + ki * integral + kd * derivative;
+
+  // Update previous error
+  prev_error = error;
+
+  // Apply output
+  // In this example, the output is used to control a heater
+  // The value of output can be converted to a PWM signal to drive the heater
+  // Note that the output should be limited to prevent overshoot and instability
+  // In this example, the output is limited to a range of 0-255
+  output = constrain(output, 0, 255);
+  analogWrite(HEATER_PIN, output);
+}
+
+void setup() {
+  // Initialize input and output pins
+  pinMode(INPUT_PIN, INPUT);
+  pinMode(HEATER_PIN, OUTPUT);
+}
+
+void loop() {
+  // Read input
+  input = analogRead(INPUT_PIN);
+
+  // Convert input to temperature
+  // In this example, the input is assumed to be a voltage that is proportional to temperature
+  // The conversion factor depends on the sensor and can be calibrated
+  input = (input * 5.0 / 1023.0 - 0.5) * 100.0;
+
+  // Update PID controller
+  update_pid();
+
+  // Delay for a short time to allow the system to respond
+  delay(100);
+}
